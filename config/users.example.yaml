@@ -1,0 +1,29 @@
+# Ko'p foydalanuvchi profillari (TARQOQ model).
+# Har trader o'z kompyuterida faqat o'z profilidan foydalanadi.
+# Nusxa oling: users.example.yaml -> users.yaml (users.yaml git'ga tushmaydi).
+#
+# ESLATMA: MVP da xizmat .env dan bitta profil bilan ishlaydi.
+# Bir kompyuterda bir nechta MT5 hisobini boshqarish 3-fazada qo'shiladi;
+# hozircha har hisob uchun alohida papka/.env eng oddiy va ishonchli yo'l.
+
+users:
+  - name: samandar
+    mt5:
+      login: 5012345
+      server: "RoboForex-Demo"
+      # password: .env dagi MT5_PASSWORD dan olinadi (bu yerga yozmang)
+    timezone: Asia/Tashkent
+    sinks:
+      excel:
+        path: data/samandar_trades.xlsx
+      google_sheets:
+        sheet_id: "SIZNING_SHEET_ID"
+
+  - name: sardor
+    mt5:
+      login: 5067890
+      server: "RoboForex-Demo"
+    timezone: Asia/Tashkent
+    sinks:
+      google_sheets:
+        sheet_id: "BOSHQA_SHEET_ID"
