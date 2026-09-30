@@ -16,6 +16,16 @@ log = logging.getLogger(__name__)
 
 _SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
+
+def _san(v):
+    """Google Sheets '+' yoki '=' bilan boshlangan matnni formula deb o'ylaydi.
+    Oldiga apostrof qo'yib, sof matn sifatida saqlaymiz (apostrof ko'rinmaydi)."""
+    if v is None:
+        return ""
+    if isinstance(v, str) and v[:1] in ("=", "+", "-", "@"):
+        return "'" + v
+    return v
+
 # Ranglar (0..1 RGB)
 _BLUE = {"red": 0.267, "green": 0.447, "blue": 0.769}
 _WHITE = {"red": 1, "green": 1, "blue": 1}
@@ -44,6 +54,15 @@ class GoogleSheetsSink(Sink):
         creds = Credentials.from_service_account_file(self.credentials_path, scopes=_SCOPES)
         self._gc = gspread.authorize(creds)
         self._ss = self._gc.open_by_key(self.sheet_id)
+
+        # Kasr ajratuvchisi nuqta bo'lishi uchun til en_US (157.035, vergul emas)
+        try:
+            self._ss.batch_update({"requests": [{
+                "updateSpreadsheetProperties": {
+                    "properties": {"locale": "en_US"}, "fields": "locale",
+                }}]})
+        except Exception:
+            pass
 
         self._ws_trades = self._get_or_create(self.trades_sheet, len(trade_header))
         self._ws_open = self._get_or_create(self.open_sheet, len(open_header))
@@ -105,12 +124,12 @@ class GoogleSheetsSink(Sink):
         if not rows:
             return
         start = max(0, len(self._ws_trades.get_all_values()) - 1)  # sarlavhasiz
-        numbered = [[start + i + 1, *[("" if v is None else v) for v in r]] for i, r in enumerate(rows)]
+        numbered = [[start + i + 1, *[_san(v) for v in r]] for i, r in enumerate(rows)]
         self._ws_trades.append_rows(numbered, value_input_option="USER_ENTERED")
         log.info("Google Sheets: %d savdo qo'shildi", len(rows))
 
     def replace_open_positions(self, rows: list[list[Any]]) -> None:
-        numbered = [[i + 1, *[("" if v is None else v) for v in r]] for i, r in enumerate(rows)]
+        numbered = [[i + 1, *[_san(v) for v in r]] for i, r in enumerate(rows)]
         self._ws_open.clear()
         self._ws_open.update([self._open_header, *numbered], "A1", value_input_option="USER_ENTERED")
         self._ensure_header(self._ws_open, self._open_header)
