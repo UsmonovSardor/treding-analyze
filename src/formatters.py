@@ -5,6 +5,31 @@ from datetime import datetime, timezone as dt_timezone
 from zoneinfo import ZoneInfo
 
 
+def iso_to_date(iso: str) -> str:
+    """ISO 8601 -> 'DD.MM.YY' (masalan '30.09.26')."""
+    if not iso:
+        return ""
+    return datetime.fromisoformat(iso).strftime("%d.%m.%y")
+
+
+def iso_to_time(iso: str) -> str:
+    """ISO 8601 -> 'HH:MM:SS' (masalan '10:15:22')."""
+    if not iso:
+        return ""
+    return datetime.fromisoformat(iso).strftime("%H:%M:%S")
+
+
+def result_sign(net_pl: float) -> str:
+    """Yutuq/zarar belgisi: '+' yoki '-'."""
+    return "+" if net_pl >= 0 else "-"
+
+
+def format_pl(net_pl: float) -> str:
+    """Pul natijasi: '+$146.00' yoki '-$15.00'."""
+    sign = "+" if net_pl >= 0 else "-"
+    return f"{sign}${abs(net_pl):.2f}"
+
+
 def to_local_iso(epoch_seconds: int | float, tz_name: str) -> str:
     """MT5 dagi UNIX vaqt (UTC) ni foydalanuvchi timezone'sidagi ISO 8601 satriga o'giradi.
 

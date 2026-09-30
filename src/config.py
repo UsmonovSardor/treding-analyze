@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Loyiha ildizi (bu fayldan ikki daraja yuqori: src/config.py -> loyiha/)
@@ -52,6 +52,24 @@ class Settings(BaseSettings):
 
     # ── Ichki yo'llar ──
     state_db_path: str = "data/journal.db"
+
+    @field_validator("mt5_login", mode="before")
+    @classmethod
+    def _empty_login_to_none(cls, v):
+        """.env da MT5_LOGIN= bo'sh qolsa -> None (ochiq terminalga ulanadi)."""
+        if v is None or (isinstance(v, str) and v.strip() == ""):
+            return None
+        return v
+
+    @field_validator("mt5_password", "mt5_server", "mt5_terminal_path",
+                     "google_sheet_id", "telegram_bot_token", "telegram_chat_id",
+                     mode="before")
+    @classmethod
+    def _empty_str_to_none(cls, v):
+        """Bo'sh string maydonlarni None ga aylantiradi."""
+        if isinstance(v, str) and v.strip() == "":
+            return None
+        return v
 
     def abs_path(self, relative: str) -> Path:
         """Nisbiy yo'lni loyiha ildiziga nisbatan absolyut qiladi."""

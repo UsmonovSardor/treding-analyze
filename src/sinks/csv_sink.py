@@ -1,4 +1,4 @@
-"""CSV sink — eng oddiy, internetsiz fallback."""
+"""CSV sink — eng oddiy, internetsiz fallback. № avtomatik qo'yiladi."""
 from __future__ import annotations
 
 import csv
@@ -31,11 +31,20 @@ class CsvSink(Sink):
         with open(path, mode, newline="", encoding="utf-8-sig") as f:
             csv.writer(f).writerows(rows)
 
+    def _data_count(self, path: Path) -> int:
+        if not path.exists():
+            return 0
+        with open(path, encoding="utf-8-sig") as f:
+            return max(0, sum(1 for _ in f) - 1)  # sarlavhani chiqarib
+
     def append_trades(self, rows: list[list[Any]]) -> None:
         if not rows:
             return
-        self._write(self.trades_path, rows, mode="a")
+        start = self._data_count(self.trades_path)
+        numbered = [[start + i + 1, *r] for i, r in enumerate(rows)]
+        self._write(self.trades_path, numbered, mode="a")
         log.info("CSV: %d savdo qo'shildi", len(rows))
 
     def replace_open_positions(self, rows: list[list[Any]]) -> None:
-        self._write(self.open_path, [self._open_header, *rows], mode="w")
+        numbered = [[i + 1, *r] for i, r in enumerate(rows)]
+        self._write(self.open_path, [self._open_header, *numbered], mode="w")
