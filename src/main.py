@@ -106,6 +106,9 @@ def poll_once(mt5c: MT5Client, state: StateStore, sinks, sinks_by_name, notifier
 
     for t in new_trades:
         row = t.as_row()
+        # 1-NAVBATDA: to'liq ma'lumotni doimiy bazaga saqlaymiz (source of truth).
+        # Sink'lar keyin yozadi; ular o'chsa ham bazadan tiklanadi.
+        state.save_trade_full(t.account, t.position_id, t.exit_time, t.to_dict())
         state.mark_seen(t.account, t.position_id)
         ok_any = False
         for sink in sinks:

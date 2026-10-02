@@ -54,6 +54,15 @@ class Trade:
     comment: str
     strategy: str
 
+    def to_dict(self) -> dict:
+        """To'liq ma'lumotni lug'atga (bazaga saqlash uchun)."""
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "Trade":
+        """Bazadan tiklash."""
+        return cls(**d)
+
     def as_row(self) -> list[Any]:
         """Shablon tartibidagi qator (№ dan tashqari — uni sink qo'yadi)."""
         return [

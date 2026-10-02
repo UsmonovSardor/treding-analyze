@@ -37,6 +37,10 @@ class CsvSink(Sink):
         with open(path, encoding="utf-8-sig") as f:
             return max(0, sum(1 for _ in f) - 1)  # sarlavhani chiqarib
 
+    def reset_trades(self) -> None:
+        """Trades faylini faqat sarlavha bilan qayta yozadi."""
+        self._write(self.trades_path, [self._trade_header], mode="w")
+
     def append_trades(self, rows: list[list[Any]]) -> None:
         if not rows:
             return

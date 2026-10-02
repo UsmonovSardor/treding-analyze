@@ -19,3 +19,7 @@ class Sink(ABC):
     @abstractmethod
     def replace_open_positions(self, rows: list[list[Any]]) -> None:
         """Ochiq pozitsiyalar varag'ini to'liq yangilaydi (jonli holat)."""
+
+    @abstractmethod
+    def reset_trades(self) -> None:
+        """Trades varag'ini tozalaydi (sarlavha qoladi) — bazadan qayta tiklash uchun."""

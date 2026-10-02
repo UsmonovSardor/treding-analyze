@@ -120,6 +120,12 @@ class GoogleSheetsSink(Sink):
                 }}}},
         ]})
 
+    def reset_trades(self) -> None:
+        """Trades varag'ini tozalaydi, sarlavha + formatlashni qayta qo'yadi."""
+        self._ws_trades.clear()
+        self._ensure_header(self._ws_trades, self._trade_header)
+        self._ensure_conditional_formatting(self._ws_trades, len(self._trade_header))
+
     def append_trades(self, rows: list[list[Any]]) -> None:
         if not rows:
             return

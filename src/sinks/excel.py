@@ -92,6 +92,15 @@ class ExcelSink(Sink):
         wb.save(self.path)
         log.info("Excel: %d savdo qo'shildi", len(rows))
 
+    def reset_trades(self) -> None:
+        """Trades varag'ini tozalaydi (faqat sarlavha qoladi) — qayta tiklash uchun."""
+        wb = load_workbook(self.path) if self.path.exists() else Workbook()
+        if self.trades_sheet in wb.sheetnames:
+            del wb[self.trades_sheet]
+        ws = wb.create_sheet(self.trades_sheet, 0)
+        self._style_header(ws, self._trade_header)
+        wb.save(self.path)
+
     # ── ochiq pozitsiyalar (to'liq qayta yoziladi) ──
     def replace_open_positions(self, rows: list[list[Any]]) -> None:
         wb = load_workbook(self.path)
